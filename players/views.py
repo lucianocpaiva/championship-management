@@ -9,7 +9,7 @@ from .models import Player
 
 class PlayerViewSet(viewsets.ModelViewSet):
     """
-    API endpoint that allows users to be viewed or edited.
+    API endpoint that allows players to be viewed or edited.
     """
     queryset = Player.objects.all().order_by('-id')
     serializer_class = PlayerSerializer
