@@ -41,7 +41,8 @@ INSTALLED_APPS = [
     'drf_yasg',
     'players',
     'teams',
-    'transfers'
+    'transfers',
+    'tournaments'
 ]
 
 MIDDLEWARE = [
