@@ -17,11 +17,12 @@ from teams.models import Team
 class TournamentViewSet(viewsets.ModelViewSet):
     queryset = Tournament.objects.all()
     serializer_class = TournamentSerializer
+    lookup_field = 'id'
 
     @action(detail=True, methods=['post'], url_path='teams', name='teste', serializer_class=TournamentTeamSerializer)
-    def teams(self, request, pk=None):
+    def teams(self, request, id=None):
 
-        tournament = get_object_or_404(Tournament, pk=pk)
+        tournament = get_object_or_404(Tournament, pk=id)
         
         serializer = TournamentTeamSerializer(data=request.data)
         
@@ -34,8 +35,8 @@ class TournamentViewSet(viewsets.ModelViewSet):
         raise exceptions.ValidationError(serializer.errors)
 
     @teams.mapping.get
-    def list_teams(self, request, pk=None):
-        tournament = get_object_or_404(Tournament, pk=pk)
+    def list_teams(self, request, id=None):
+        tournament = get_object_or_404(Tournament, pk=id)
         teams = tournament.teams.all()
         serializer = TeamSerializer(teams, many=True, context={'request': request})
         
@@ -43,8 +44,8 @@ class TournamentViewSet(viewsets.ModelViewSet):
         
 
     @action(detail=True, methods=['delete'], url_path='teams/(?P<team_id>[^/.]+)', name='delete-team', serializer_class=TournamentTeamSerializer)
-    def delete_teams(self, request, pk=None, team_id=None):
-        tournament = get_object_or_404(Tournament, pk=pk)
+    def delete_teams(self, request, id=None, team_id=None):
+        tournament = get_object_or_404(Tournament, pk=id)
     
         team = tournament.teams.filter(id=team_id)
         

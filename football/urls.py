@@ -26,17 +26,18 @@ from rest_framework_nested import routers
 from players.views import PlayerViewSet
 from teams.views import TeamViewSet
 from transfers.views import TransferViewSet
-from tournaments.views import TournamentViewSet #TournamentTeamViewSet
+from tournaments.views import TournamentViewSet
+from matches.views import MatchViewSet
 
 router = routers.DefaultRouter(trailing_slash=False)
 router.register(r'players', PlayerViewSet)
 router.register(r'teams', TeamViewSet)
 router.register(r'transfers', TransferViewSet)
-router.register(r'tournaments', TournamentViewSet)
+router.register(r'tournaments', TournamentViewSet, basename='tournaments')
 
 # partidas
-# teams_router = routers.NestedSimpleRouter(router, r'tournaments', lookup='tournament')
-# teams_router.register(r'teams', TournamentTeamViewSet, basename='tournament-teams')
+matches_router = routers.NestedSimpleRouter(router, r'tournaments', lookup='tournament')
+matches_router.register(r'matches', MatchViewSet, basename='matches')
 
 
 schema_view = get_schema_view(
@@ -56,7 +57,7 @@ schema_view = get_schema_view(
 # Additionally, we include login URLs for the browsable API.
 urlpatterns = [
     path('', include(router.urls)),
-    # path(r'', include(teams_router.urls)),
+    path(r'', include(matches_router.urls)),
     # path('api-auth/', include('rest_framework.urls', namespace='rest_framework')),
     # re_path(r'^swagger(?P<format>\.json|\.yaml)$', schema_view.without_ui(cache_timeout=0), name='schema-json'),
     re_path(r'^swagger/$', schema_view.with_ui('swagger', cache_timeout=0), name='schema-swagger-ui'),
