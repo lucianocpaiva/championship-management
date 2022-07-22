@@ -1,19 +1,13 @@
-import resource
 from rest_framework import viewsets, permissions, status, exceptions
 from drf_yasg.utils import swagger_auto_schema
-
-from rest_framework import mixins
-from rest_framework import generics
 from rest_framework.response import Response
 
 from django.utils.decorators import method_decorator
-from rest_framework.decorators import action
-from django.shortcuts import get_object_or_404
 
 from .serializers import MatchSerializer
 from .models import Match
 from tournaments.models import Tournament
- 
+
 from .serializers import EventSerializer
 from .models import Event
 
@@ -33,37 +27,37 @@ class MatchViewSet(viewsets.ModelViewSet):
     serializer_class = MatchSerializer
     # permission_classes = [permissions.IsAuthenticated]
     lookup_field = 'id'
-    
+
     def get_queryset(self):
 
         tournament_id = self.kwargs.get('tournament_id', None)
-        
+
         if(tournament_id):
             try:
                 tournament = Tournament.objects.get(id=tournament_id)
-                
+
                 return Match.objects.filter(tournament=tournament)
-                
+
             except Tournament.DoesNotExist:
                 raise exceptions.NotFound('Tournament not found')
-        
+
         raise exceptions.NotFound('Tournament not found')
+
 
 class EventViewSet(viewsets.ViewSet):
     """
-    API endpoint that allows events to be viewed or edited.
+    API endpoint that allows events to be viewed.
     """
-    
+
     @swagger_auto_schema(tags=['events'])
-    def list(self, request, tournament_id=None, match_id=None):        
+    def list(self, tournament_id=None, match_id=None):
         if not self.get_match(match_id, tournament_id):
             return Response(status=status.HTTP_404_NOT_FOUND, data={'message': 'Match not found'})
-        
+
         events = Event.objects.filter(match_id=match_id)
-        
+
         serializer = EventSerializer(events, many=True)
         return Response(serializer.data)
-
 
     @swagger_auto_schema(tags=['events'], request_body=EventSerializer)
     def create(self, request, tournament_id=None, match_id=None):
@@ -71,19 +65,19 @@ class EventViewSet(viewsets.ViewSet):
         print(match)
         if not match:
             return Response(status=status.HTTP_404_NOT_FOUND, data={'message': 'Match not found'})
-        
-        serializer = EventSerializer(data=request.data, context={'match': match})
-        
+
+        serializer = EventSerializer(
+            data=request.data, context={'match': match})
+
         if serializer.is_valid():
             serializer.save()
-            
+
             # Send events to message queue
             send_match_event(match.id, serializer.data)
-            
+
             return Response(serializer.data, status=201)
         return Response(serializer.errors, status=400)
 
-    
     def get_match(self, match_id, tournament_id):
         try:
             return Match.objects.get(id=match_id, tournament_id=tournament_id)

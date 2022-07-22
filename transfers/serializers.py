@@ -4,16 +4,18 @@ from .models import Transfer
 from teams.models import Team
 from players.models import Player
 
+
 class TransferSerializer(serializers.ModelSerializer):
-    
+
     def create(self, validated_data):
-        
+
         team = Team.objects.get(id=validated_data['team'].id)
 
         player = Player.objects.get(id=validated_data['player'].id)
 
         if player.team == team:
-            raise serializers.ValidationError('Passed player is already in this team')
+            raise serializers.ValidationError(
+                'Passed player is already in this team')
 
         player.team = team
         player.save()
@@ -27,17 +29,15 @@ class TransferSerializer(serializers.ModelSerializer):
         instance.player = Player.objects.get(id=validated_data['player'].id)
         instance.date = validated_data['date']
         instance.price = validated_data['price']
-        
+
         # Update player team
         instance.player.team = instance.team
-        
+
         instance.player.save()
         instance.save()
-        
+
         return instance
-    
+
     class Meta:
         model = Transfer
         fields = ('id', 'player', 'team', 'date', 'price', 'url')
-        
-    
