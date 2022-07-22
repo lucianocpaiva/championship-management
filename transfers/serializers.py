@@ -10,8 +10,6 @@ class TransferSerializer(serializers.ModelSerializer):
         
         team = Team.objects.get(id=validated_data['team'].id)
 
-        # import pdb;pdb.set_trace()
-
         player = Player.objects.get(id=validated_data['player'].id)
 
         if player.team == team:
@@ -24,6 +22,20 @@ class TransferSerializer(serializers.ModelSerializer):
 
         return transfer
 
+    def update(self, instance, validated_data):
+        instance.team = Team.objects.get(id=validated_data['team'].id)
+        instance.player = Player.objects.get(id=validated_data['player'].id)
+        instance.date = validated_data['date']
+        instance.price = validated_data['price']
+        
+        # Update player team
+        instance.player.team = instance.team
+        
+        instance.player.save()
+        instance.save()
+        
+        return instance
+    
     class Meta:
         model = Transfer
         fields = ('id', 'player', 'team', 'date', 'price', 'url')

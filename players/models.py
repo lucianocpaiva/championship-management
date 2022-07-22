@@ -12,7 +12,7 @@ class Player(models.Model):
     birth = models.DateField(blank=False)
     country = models.CharField(max_length=30)
     
-    team = models.ForeignKey(Team, on_delete=models.CASCADE, null=True, related_name='players')
+    team = models.ForeignKey(Team, null=True, related_name='players', on_delete=models.SET_NULL)
 
     def __str__(self):
         return self.name

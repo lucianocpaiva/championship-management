@@ -44,7 +44,6 @@ INSTALLED_APPS = [
     'transfers',
     'tournaments',
     'matches',
-    'events',
     'rest_framework_simplejwt',
 ]
 

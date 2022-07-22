@@ -28,7 +28,7 @@ from teams.views import TeamViewSet
 from transfers.views import TransferViewSet
 from tournaments.views import TournamentViewSet
 from matches.views import MatchViewSet
-from events.views import EventViewSet
+from matches.views import EventViewSet
 
 from rest_framework_simplejwt.views import (
     TokenObtainPairView,
