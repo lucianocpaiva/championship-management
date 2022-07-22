@@ -44,6 +44,8 @@ INSTALLED_APPS = [
     'transfers',
     'tournaments',
     'matches',
+    'events',
+    'rest_framework_simplejwt',
 ]
 
 MIDDLEWARE = [
@@ -128,4 +130,23 @@ STATIC_URL = '/static/'
 
 SWAGGER_SETTINGS = {
    'USE_SESSION_AUTH': False
+}
+
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
+    )
+}
+
+SWAGGER_SETTINGS = {
+    'USE_SESSION_AUTH': False,
+    'SECURITY_DEFINITIONS': {
+        "Bearer": {
+            "type": "apiKey",
+            "name": "authorization",
+            "in": "header",
+            'description': "JWT Authorization header using the Bearer scheme. Example: \"Bearer \<accessToken\>\""
+        }
+    },
+
 }
