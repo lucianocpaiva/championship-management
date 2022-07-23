@@ -1,4 +1,4 @@
-from football import channel
+from championship_management import channel
 import json
 
 

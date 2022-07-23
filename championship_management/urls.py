@@ -1,4 +1,4 @@
-"""football URL Configuration
+"""championship_management URL Configuration
 
 The `urlpatterns` list routes URLs to views. For more information please see:
     https://docs.djangoproject.com/en/1.11/topics/http/urls/
@@ -54,7 +54,7 @@ events_router.register(r'events', EventViewSet, basename='events')
 
 schema_view = get_schema_view(
     openapi.Info(
-        title="Football API",
+        title="Championship management API",
         default_version='v1',
         description="",
         terms_of_service="https://www.google.com/policies/terms/",
