@@ -9,7 +9,7 @@ class Match(models.Model):
     team_away = models.ForeignKey(
         'teams.Team', on_delete=models.CASCADE,  related_name='team_away')
     tournament = models.ForeignKey(
-        'tournaments.Tournament', on_delete=models.SET_NULL, null=True, related_name='matches')
+        'tournaments.Tournament', on_delete=models.SET_NULL, null=True, related_name='tournament_matches')
     date = models.DateField()
 
     def __str__(self):
@@ -23,7 +23,7 @@ class Event(models.Model):
     title = models.CharField(max_length=100)
     description = models.TextField()
     match = models.ForeignKey(
-        'matches.Match', on_delete=models.SET_NULL, null=True, related_name='events')
+        'matches.Match', on_delete=models.SET_NULL, null=True, related_name='match_events')
 
     def __str__(self):
         return self.title

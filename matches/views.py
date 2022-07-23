@@ -25,8 +25,8 @@ class MatchViewSet(viewsets.ModelViewSet):
     API endpoint that allows matches to be viewed or edited.
     """
     serializer_class = MatchSerializer
-    # permission_classes = [permissions.IsAuthenticated]
     lookup_field = 'id'
+    # permission_classes = [permissions.IsAuthenticated]
 
     def get_queryset(self):
 
@@ -50,7 +50,7 @@ class EventViewSet(viewsets.ViewSet):
     """
 
     @swagger_auto_schema(tags=['events'])
-    def list(self, tournament_id=None, match_id=None):
+    def list(self, request, match_id, tournament_id):
         if not self.get_match(match_id, tournament_id):
             return Response(status=status.HTTP_404_NOT_FOUND, data={'message': 'Match not found'})
 
@@ -78,7 +78,7 @@ class EventViewSet(viewsets.ViewSet):
             return Response(serializer.data, status=201)
         return Response(serializer.errors, status=400)
 
-    def get_match(self, match_id, tournament_id):
+    def get_match(self, match_id=None, tournament_id=None):
         try:
             return Match.objects.get(id=match_id, tournament_id=tournament_id)
         except Match.DoesNotExist:

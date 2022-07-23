@@ -14,8 +14,10 @@ class TransferSerializer(serializers.ModelSerializer):
         player = Player.objects.get(id=validated_data['player'].id)
 
         if player.team == team:
-            raise serializers.ValidationError(
+            err = serializers.ValidationError(
                 'Passed player is already in this team')
+            err.status_code = 409
+            raise err
 
         player.team = team
         player.save()
@@ -40,4 +42,4 @@ class TransferSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Transfer
-        fields = ('id', 'player', 'team', 'date', 'price', 'url')
+        fields = ('id', 'player', 'team', 'date', 'price')
