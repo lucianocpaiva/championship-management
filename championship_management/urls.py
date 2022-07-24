@@ -32,10 +32,7 @@ from tournaments.views import TournamentViewSet
 from matches.views import MatchViewSet
 from matches.views import EventViewSet
 
-from rest_framework_simplejwt.views import (
-    TokenObtainPairView,
-    TokenRefreshView,
-)
+from .simple_jwt import DecoratedTokenObtainPairView, DecoratedTokenRefreshView
 
 router = routers.DefaultRouter(trailing_slash=False)
 router.register(r'players', PlayerViewSet)
@@ -72,8 +69,8 @@ urlpatterns = [
     path(r'', include(matches_router.urls)),
     path(r'', include(events_router.urls)),
 
-    path('auth/token', TokenObtainPairView.as_view(), name='token_obtain_pair'),
-    path('auth/token/refresh', TokenRefreshView.as_view(), name='token_refresh'),
+    path('auth/token', DecoratedTokenObtainPairView.as_view(), name='token_obtain_pair'),
+    path('auth/token/refresh', DecoratedTokenRefreshView.as_view(), name='token_refresh'),
 
 
     # path('api-auth/', include('rest_framework.urls', namespace='rest_framework')),
