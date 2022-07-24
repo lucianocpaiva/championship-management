@@ -134,7 +134,12 @@ SWAGGER_SETTINGS = {
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'rest_framework_simplejwt.authentication.JWTAuthentication',
-    )
+    ),
+    'DEFAULT_RENDERER_CLASSES': (
+        'rest_framework.renderers.JSONRenderer',
+    ),
+    'DEFAULT_VERSIONING_CLASS': 'rest_framework.versioning.AcceptHeaderVersioning',
+    'DEFAULT_VERSION': 'v1',
 }
 
 SWAGGER_SETTINGS = {
@@ -147,5 +152,11 @@ SWAGGER_SETTINGS = {
             'description': "JWT Authorization header using the Bearer scheme. Example: \"Bearer \<accessToken\>\""
         }
     },
+}
 
+RABBITMQ = {
+    'HOST': 'rabbitmq',
+    'PORT': 5672,
+    'USER': 'admin',
+    'PASSWORD': 'admin',
 }
