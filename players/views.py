@@ -1,5 +1,6 @@
 from rest_framework import viewsets
 from rest_framework import permissions
+from django_filters.rest_framework import DjangoFilterBackend
 
 from .serializers import PlayerSerializer
 from .models import Player
@@ -11,4 +12,5 @@ class PlayerViewSet(viewsets.ModelViewSet):
     """
     queryset = Player.objects.all().order_by('-id')
     serializer_class = PlayerSerializer
-    # permission_classes = [permissions.IsAuthenticated]
+    filter_backends = [DjangoFilterBackend]
+    filterset_fields = ['name', 'country']

@@ -10,7 +10,7 @@ class Match(models.Model):
         'teams.Team', on_delete=models.CASCADE,  related_name='team_away')
     tournament = models.ForeignKey(
         'tournaments.Tournament', on_delete=models.SET_NULL, null=True, related_name='tournament_matches')
-    date = models.DateTimeField(auto_now_add=True)
+    date = models.DateTimeField()
     
     created_at = models.DateTimeField(auto_now_add=True, null=True)
     updated_at = models.DateTimeField(auto_now=True, null=True)

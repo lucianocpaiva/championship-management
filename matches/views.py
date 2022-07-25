@@ -81,8 +81,12 @@ class EventViewSet(viewsets.ViewSet):
         if serializer.is_valid():
             serializer.save()
 
+            payload = {
+                **serializer.data,
+                match_id: match.id,
+            }
             # Send events to message queue
-            send_match_event(match.id, serializer.data)
+            send_match_event(payload)
 
             return Response(serializer.data, status=201)
         return Response(serializer.errors, status=400)
