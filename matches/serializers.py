@@ -10,33 +10,37 @@ class MatchSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
         tournament = self.validate_data(validated_data)
-        
+
         validated_data['tournament'] = tournament
 
         return Match.objects.create(**validated_data)
 
     def update(self, instance, validated_data):
         tournament = self.validate_data(validated_data)
-        
-        instance.team_home = validated_data.get('team_home', instance.team_home)
-        instance.team_away = validated_data.get('team_away', instance.team_away)
+
+        instance.team_home = validated_data.get(
+            'team_home', instance.team_home)
+        instance.team_away = validated_data.get(
+            'team_away', instance.team_away)
         instance.date = validated_data.get('date', instance.date)
         instance.tournament = tournament
         instance.save()
-        
+
         return instance
-    
+
     def validate_data(self, validated_data):
         try:
-            tournament = Tournament.objects.get(id=self.context['view'].kwargs['tournament_id'])
+            tournament = Tournament.objects.get(
+                id=self.context['view'].kwargs['tournament_id'])
         except Tournament.DoesNotExist:
-            raise exceptions.NotFound({'message': 'Tournament not found'}) 
-            
+            raise exceptions.NotFound({'message': 'Tournament not found'})
+
         if validated_data['team_home'] == validated_data['team_away']:
-            err = exceptions.ValidationError({'message': 'Teams cannot be the same'})
+            err = exceptions.ValidationError(
+                {'message': 'Teams cannot be the same'})
             err.status_code = 409
             raise err
-        
+
         return tournament
 
     class Meta:
@@ -45,6 +49,9 @@ class MatchSerializer(serializers.ModelSerializer):
 
 
 class EventSerializer(serializers.ModelSerializer):
+    type = serializers.ChoiceField(choices=(
+        'start', 'goal', 'penalty', 'yellow', 'red', 'end', 'substitution', 'break', 'break_start', 'break_end', 'corner'
+    ))
 
     def create(self, validated_data):
 
@@ -54,4 +61,5 @@ class EventSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Event
-        fields = ('id', 'type', 'title', 'description',)
+        fields = ('id', 'type', 'date', 'description', 'match')
+        read_only_fields = ['match']

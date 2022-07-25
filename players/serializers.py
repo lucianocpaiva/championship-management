@@ -2,8 +2,9 @@ from rest_framework import serializers
 from .models import Player
 
 
-class PlayerSerializer(serializers.HyperlinkedModelSerializer):
-
+class PlayerSerializer(serializers.ModelSerializer):
+    
     class Meta:
         model = Player
-        fields = ('id', 'name', 'birth')
+        fields = ('id', 'name', 'birth', 'country', 'team')
+        read_only_fields = ('team',)
