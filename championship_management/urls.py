@@ -28,17 +28,26 @@ from django.contrib import admin
 from players.views import PlayerViewSet
 from teams.views import TeamViewSet
 from transfers.views import TransferViewSet
-from tournaments.views import TournamentViewSet
+from tournaments.views import TournamentViewSet, TournamentTeamViewSet
 from matches.views import MatchViewSet
 from matches.views import EventViewSet
 
 from .simple_jwt import DecoratedTokenObtainPairView, DecoratedTokenRefreshView
+
+# personaliza internal server error
+handler500 = 'rest_framework.exceptions.server_error'
 
 router = routers.DefaultRouter(trailing_slash=False)
 router.register(r'players', PlayerViewSet)
 router.register(r'teams', TeamViewSet)
 router.register(r'transfers', TransferViewSet)
 router.register(r'tournaments', TournamentViewSet, basename='tournaments')
+
+# times em torneios
+tournament_team_router = routers.NestedSimpleRouter(
+    router, r'tournaments', lookup='tournament')
+tournament_team_router.register(r'teams', TournamentTeamViewSet, basename='tournament-teams')
+
 
 # partidas
 matches_router = routers.NestedSimpleRouter(
@@ -66,6 +75,7 @@ schema_view = get_schema_view(
 # Additionally, we include login URLs for the browsable API.
 urlpatterns = [
     path(r'', include(router.urls)),
+    path(r'', include(tournament_team_router.urls)),
     path(r'', include(matches_router.urls)),
     path(r'', include(events_router.urls)),
 

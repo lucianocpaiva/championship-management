@@ -1,47 +1,39 @@
-from rest_framework import serializers, exceptions
+from rest_framework import serializers, exceptions, status
 from tournaments.models import Tournament
 from django.shortcuts import get_object_or_404
 
+
+from championship_management.exceptions import HTTPException
 from .models import Event
 from .models import Match
 
 
 class MatchSerializer(serializers.ModelSerializer):
 
-    def create(self, validated_data):
-        tournament = self.validate_data(validated_data)
-
-        validated_data['tournament'] = tournament
-
-        return Match.objects.create(**validated_data)
-
-    def update(self, instance, validated_data):
-        tournament = self.validate_data(validated_data)
-
-        instance.team_home = validated_data.get(
-            'team_home', instance.team_home)
-        instance.team_away = validated_data.get(
-            'team_away', instance.team_away)
-        instance.date = validated_data.get('date', instance.date)
-        instance.tournament = tournament
-        instance.save()
-
-        return instance
-
-    def validate_data(self, validated_data):
+    def to_internal_value(self, data):
+        
+        tournament_id = self.context['view'].kwargs['tournament_id']
+        
+        if not tournament_id.isdigit():
+            raise serializers.ValidationError({'message': 'tournament_id must be an integer'})
+        
         try:
-            tournament = Tournament.objects.get(
-                id=self.context['view'].kwargs['tournament_id'])
+            tournament = Tournament.objects.get(id=tournament_id)
         except Tournament.DoesNotExist:
-            raise exceptions.NotFound({'message': 'Tournament not found'})
+            raise HTTPException({'message': 'Tournament not found'}, status.HTTP_404_NOT_FOUND)
 
-        if validated_data['team_home'] == validated_data['team_away']:
-            err = exceptions.ValidationError(
-                {'message': 'Teams cannot be the same'})
-            err.status_code = 409
-            raise err
+        internal = super().to_internal_value(data)
+        internal['tournament'] = tournament
+    
+        return internal
+    
 
-        return tournament
+    def validate(self, data):
+
+        if data['team_home'] == data['team_away']:
+            raise HTTPException({'message': 'Teams cannot be the same'}, status.HTTP_409_CONFLICT)
+        
+        return data
 
     class Meta:
         model = Match

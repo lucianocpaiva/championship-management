@@ -1,56 +1,46 @@
 from django.shortcuts import get_object_or_404
+from django.utils.decorators import method_decorator
+from drf_yasg import openapi
 
-from rest_framework import exceptions
-from rest_framework import viewsets
-
-from rest_framework.response import Response
-from rest_framework.decorators import action
-from teams.serializers import TeamSerializer
-
+from rest_framework import exceptions, mixins, viewsets
+from drf_yasg.utils import swagger_auto_schema
 
 from tournaments.serializers import TournamentSerializer, TournamentTeamSerializer
-from tournaments.models import Tournament
-from teams.models import Team
-
+from tournaments.models import Tournament, TournamentTeam
 
 class TournamentViewSet(viewsets.ModelViewSet):
     queryset = Tournament.objects.all()
     serializer_class = TournamentSerializer
     lookup_field = 'id'
 
-    @action(detail=True, methods=['post'], url_path='teams', name='teste', serializer_class=TournamentTeamSerializer)
-    def teams(self, request, id=None):
 
-        tournament = get_object_or_404(Tournament, pk=id)
+params = [
+    openapi.Parameter("tournament_id",
+        openapi.IN_PATH,
+        description="An integer identifying the tournament",
+        type=openapi.TYPE_INTEGER
+    )
+]
 
-        serializer = TournamentTeamSerializer(data=request.data)
+@method_decorator(name="list", decorator=swagger_auto_schema(manual_parameters=params, tags=['tournament-teams']))
+@method_decorator(name="create", decorator=swagger_auto_schema(manual_parameters=params, tags=['tournament-teams']))
+@method_decorator(name="retrieve", decorator=swagger_auto_schema(manual_parameters=params, tags=['tournament-teams']))
+@method_decorator(name="update", decorator=swagger_auto_schema(manual_parameters=params, tags=['tournament-teams']))
+@method_decorator(name="partial_update", decorator=swagger_auto_schema(manual_parameters=params, tags=['tournament-teams']))
+@method_decorator(name="destroy", decorator=swagger_auto_schema(manual_parameters=params, tags=['tournament-teams']))
+class TournamentTeamViewSet(viewsets.ModelViewSet):
+    queryset = TournamentTeam.objects.all()
+    serializer_class = TournamentTeamSerializer
+    lookup_field = 'id'
+    
+    def get_queryset(self):
+        tournament_id = self.kwargs.get('tournament_id', None)
 
-        if serializer.is_valid():
-            team = Team.objects.get(id=serializer.validated_data['team_id'])
-            tournament.teams.add(team)
-            tournament.save()
-            return Response(serializer.data)
+        if(tournament_id):
+            try:
+                tournament = Tournament.objects.get(id=tournament_id)
 
-        raise exceptions.ValidationError(serializer.errors)
+                return TournamentTeam.objects.filter(tournament=tournament)
 
-    @teams.mapping.get
-    def list_teams(self, request, id=None):
-        tournament = get_object_or_404(Tournament, pk=id)
-        teams = tournament.teams.all()
-        serializer = TeamSerializer(
-            teams, many=True, context={'request': request})
-
-        return Response(serializer.data)
-
-    @action(detail=True, methods=['delete'], url_path='teams/(?P<team_id>[^/.]+)', name='delete-team', serializer_class=TournamentTeamSerializer)
-    def delete_teams(self, request, id=None, team_id=None):
-        tournament = get_object_or_404(Tournament, pk=id)
-
-        team = tournament.teams.filter(id=team_id)
-
-        if team:
-            tournament.teams.remove(team_id)
-            tournament.save()
-            return Response(status=204)
-
-        raise exceptions.ValidationError('Team not in tournament')
+            except Tournament.DoesNotExist:
+                raise exceptions.NotFound('Tournament not found')
