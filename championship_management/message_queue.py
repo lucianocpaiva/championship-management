@@ -1,7 +1,10 @@
 from django.conf import settings
 import pika
 
-connection = pika.BlockingConnection(pika.ConnectionParameters(
-    host=settings.RABBITMQ['HOST'], credentials=pika.PlainCredentials(settings.RABBITMQ['USER'], settings.RABBITMQ['PASSWORD'])))
+channel = None
 
-channel = connection.channel()
+if settings.RABBITMQ['ACTIVE']:
+    connection = pika.BlockingConnection(pika.ConnectionParameters(
+        host=settings.RABBITMQ['HOST'], credentials=pika.PlainCredentials(settings.RABBITMQ['USER'], settings.RABBITMQ['PASSWORD'])))
+
+    channel = connection.channel()
